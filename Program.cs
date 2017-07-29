@@ -16,18 +16,23 @@ namespace BikePOVImageGen
 
 
             var fileStream = new FileStream(filename, FileMode.Open);
-            var image = Image.Load(fileStream); 
+            var image = Image.Load(fileStream);
 
             var imageWidth = image.Width;
             var imageHeight = image.Height;
 
+
             var centerPt = new Point(imageWidth / 2, imageHeight / 2);
-
-
             var centerPx = image.GetPixelReference(centerPt.X, centerPt.Y);
 
-            Console.WriteLine(centerPx);
-            Console.WriteLine("Done.");
+
+            // Pad the edges with black to make it square
+            var size = imageWidth < imageHeight ? imageHeight : imageWidth;
+            image.Pad(size, size);
+
+            image.Save("output.gif");
+
+            Console.WriteLine("Done2.");
         }
     }
 }

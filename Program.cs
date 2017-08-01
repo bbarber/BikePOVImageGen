@@ -17,17 +17,15 @@ namespace BikePOVImageGen
         static int NUMBER_OF_LEDS = 12;
 
         // How far should we start from the center of the image
-        static double LED_CENTER_OFFSET_PERCENT = 0.4;
+        static double LED_CENTER_OFFSET_PERCENT = 24.4;
 
         static void Main(string[] args)
         {
             // This will eventually be passed in
-            var filename = "images/nb.png";
-
+            var filename = "images/circlelogo.jpg";
 
             var fileStream = new FileStream(filename, FileMode.Open);
             var image = Image.Load(fileStream);
-            
 
             var imageWidth = image.Width;
             var imageHeight = image.Height;
@@ -36,20 +34,28 @@ namespace BikePOVImageGen
             var size = imageWidth < imageHeight ? imageHeight : imageWidth;
             image.Pad(size, size);
 
+            var scaledSize = (int)(NUMBER_OF_LEDS * 2 * Math.PI);
+            image.Resize(scaledSize, scaledSize);
+            size = scaledSize;
+
             // Used to visualize the output
             var output = new Image<Rgba32>(size, size);
 
             var startingLength = size / 2 * LED_CENTER_OFFSET_PERCENT / 100;
             var endingLength = size / 2;
             var lengthBetweenLEDs = (endingLength - startingLength) / NUMBER_OF_LEDS;
+            var toRadians = Math.PI / 180;
 
             for (var degree = 0; degree < 360; degree += 360 / RESOLUTION)
             {
+                var xComponent = Math.Cos(degree * toRadians);
+                var yComponent = Math.Sin(degree * toRadians);
+
                 for (var led = 1; led <= NUMBER_OF_LEDS; led++)
                 {
                     var length = led * lengthBetweenLEDs + startingLength;
-                    var x = length * Math.Cos(degree);
-                    var y = length * Math.Sin(degree);
+                    var x = length * xComponent;
+                    var y = length * yComponent;
 
                     var pixelX = Math.Round(image.Width / 2.0 + x);
                     var pixelY = Math.Round(image.Height / 2.0 + y);
@@ -59,7 +65,6 @@ namespace BikePOVImageGen
             }
 
             output.Save("output.gif");
-
             WriteLine("Done.");
         }
     }

@@ -5,13 +5,14 @@ using ImageSharp.PixelFormats;
 using System.IO;
 using System.Threading;
 using static System.Console;
+using static System.Math;
 
 namespace BikePOVImageGen
 {
     class Program
     {
         // Number of lines around the image
-        static int RESOLUTION = 360;
+        static int RESOLUTION = 60;
 
         // How many LEDs each strip has
         static int NUMBER_OF_LEDS = 12;
@@ -22,7 +23,7 @@ namespace BikePOVImageGen
         static void Main(string[] args)
         {
             // This will eventually be passed in
-            var filename = "images/circlelogo.jpg";
+            var filename = "images/square.gif";
 
             var fileStream = new FileStream(filename, FileMode.Open);
             var image = Image.Load(fileStream);
@@ -34,7 +35,7 @@ namespace BikePOVImageGen
             var size = imageWidth < imageHeight ? imageHeight : imageWidth;
             image.Pad(size, size);
 
-            var scaledSize = (int)(NUMBER_OF_LEDS * 2 * Math.PI);
+            var scaledSize = (int)(NUMBER_OF_LEDS * 2 * PI);
             image.Resize(scaledSize, scaledSize);
             size = scaledSize;
 
@@ -44,12 +45,12 @@ namespace BikePOVImageGen
             var startingLength = size / 2 * LED_CENTER_OFFSET_PERCENT / 100;
             var endingLength = size / 2;
             var lengthBetweenLEDs = (endingLength - startingLength) / NUMBER_OF_LEDS;
-            var toRadians = Math.PI / 180;
+            var toRadians = PI / 180;
 
             for (var degree = 0; degree < 360; degree += 360 / RESOLUTION)
             {
-                var xComponent = Math.Cos(degree * toRadians);
-                var yComponent = Math.Sin(degree * toRadians);
+                var xComponent = Cos(degree * toRadians);
+                var yComponent = Sin(degree * toRadians);
 
                 for (var led = 1; led <= NUMBER_OF_LEDS; led++)
                 {
@@ -57,8 +58,8 @@ namespace BikePOVImageGen
                     var x = length * xComponent;
                     var y = length * yComponent;
 
-                    var pixelX = Math.Round(image.Width / 2.0 + x);
-                    var pixelY = Math.Round(image.Height / 2.0 + y);
+                    var pixelX = Round(image.Width / 2.0 + x);
+                    var pixelY = Round(image.Height / 2.0 + y);
 
                     output[(int)pixelX, (int)pixelY] = image[(int)pixelX, (int)pixelY];
                 }
